@@ -1,0 +1,1000 @@
+============================================================
+                 SALESFORCE SOQL MASTER NOTES
+          ONE EXAMPLE OF EACH MAJOR SOQL CONCEPT
+============================================================
+
+1. BASIC SOQL
+============================================================
+
+SELECT Id, Name, Email
+FROM Account
+
+
+SELECT Id, FirstName, LastName, Email
+FROM Contact
+
+
+SELECT Id, FirstName, LastName, Company, Status
+FROM Lead
+
+
+SELECT Id, Name, Amount, StageName
+FROM Opportunity
+
+
+2. WHERE CLAUSE
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE Industry = 'Technology'
+
+
+SELECT Id, Name
+FROM Account
+WHERE Industry != 'Technology'
+
+
+SELECT Id, Name
+FROM Account
+WHERE AnnualRevenue > 1000000
+
+
+SELECT Id, Name
+FROM Account
+WHERE AnnualRevenue < 1000000
+
+
+SELECT Id, Name
+FROM Account
+WHERE NumberOfEmployees >= 500
+
+
+SELECT Id, Name
+FROM Account
+WHERE NumberOfEmployees <= 500
+
+
+SELECT Id, Name
+FROM Account
+WHERE Phone = NULL
+
+
+SELECT Id, Name
+FROM Account
+WHERE Phone != NULL
+
+
+3. AND / OR / NOT
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE Industry = 'Technology'
+AND Type = 'Customer'
+
+
+SELECT Id, Name
+FROM Account
+WHERE Industry = 'Technology'
+OR Industry = 'Finance'
+
+
+SELECT Id, Name
+FROM Account
+WHERE NOT Industry = 'Technology'
+
+
+SELECT Id, Name
+FROM Account
+WHERE Industry = 'Technology'
+AND (Type = 'Customer' OR Type = 'Prospect')
+
+
+4. LIKE
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE Name LIKE 'Sales%'
+
+
+SELECT Id, Name
+FROM Account
+WHERE Name LIKE '%India'
+
+
+SELECT Id, Name
+FROM Account
+WHERE Name LIKE '%Tech%'
+
+
+SELECT Id, Name
+FROM Account
+WHERE Name LIKE 'A_%'
+
+
+5. IN / NOT IN
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE Industry IN ('Technology', 'Finance', 'Healthcare')
+
+
+SELECT Id, Name
+FROM Account
+WHERE Industry NOT IN ('Technology', 'Finance')
+
+
+
+6. DATE LITERALS
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = TODAY
+
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = YESTERDAY
+
+
+SELECT Id, Name
+FROM Task
+WHERE ActivityDate = TOMORROW
+
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = LAST_N_DAYS:30
+
+
+SELECT Id, Name
+FROM Task
+WHERE ActivityDate = NEXT_N_DAYS:7
+
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = THIS_MONTH
+
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = LAST_MONTH
+
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = THIS_YEAR
+
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = LAST_YEAR
+
+
+SELECT Id, Name
+FROM Opportunity
+WHERE CloseDate = THIS_QUARTER
+
+
+SELECT Id, Name
+FROM Opportunity
+WHERE CloseDate = LAST_QUARTER
+
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = LAST_N_MONTHS:3
+
+
+SELECT Id, Name
+FROM Opportunity
+WHERE CloseDate = NEXT_N_MONTHS:3
+
+
+SELECT Id, Name
+FROM Account
+WHERE CreatedDate = N_DAYS_AGO:30
+
+
+SELECT Id, Name
+FROM Opportunity
+WHERE CloseDate = THIS_WEEK
+
+
+7. ORDER BY
+============================================================
+
+SELECT Id, Name
+FROM Account
+ORDER BY Name ASC
+
+
+SELECT Id, Name
+FROM Account
+ORDER BY Name DESC
+
+
+SELECT Id, Name, Industry, AnnualRevenue
+FROM Account
+ORDER BY Industry ASC, AnnualRevenue DESC
+
+
+SELECT Id, Name, Phone
+FROM Account
+ORDER BY Phone ASC NULLS FIRST
+
+
+SELECT Id, Name, Phone
+FROM Account
+ORDER BY Phone ASC NULLS LAST
+
+
+8. LIMIT / OFFSET
+============================================================
+
+SELECT Id, Name, Amount
+FROM Opportunity
+ORDER BY Amount DESC
+LIMIT 5
+
+
+SELECT Id, Name
+FROM Account
+ORDER BY Name
+LIMIT 10
+OFFSET 10
+
+
+9. COUNT
+============================================================
+
+SELECT COUNT()
+FROM Account
+
+
+SELECT COUNT(Id)
+FROM Account
+
+
+SELECT COUNT()
+FROM Account
+WHERE Industry = 'Technology'
+
+
+SELECT COUNT_DISTINCT(Industry)
+FROM Account
+
+
+10. AGGREGATE FUNCTIONS
+============================================================
+
+SELECT SUM(Amount)
+FROM Opportunity
+
+
+SELECT AVG(Amount)
+FROM Opportunity
+
+
+SELECT MIN(Amount)
+FROM Opportunity
+
+
+SELECT MAX(Amount)
+FROM Opportunity
+
+
+SELECT COUNT(Id),
+       SUM(Amount),
+       AVG(Amount),
+       MIN(Amount),
+       MAX(Amount)
+FROM Opportunity
+
+
+11. GROUP BY
+============================================================
+
+SELECT Industry, COUNT(Id)
+FROM Account
+GROUP BY Industry
+
+
+SELECT Type, COUNT(Id)
+FROM Account
+GROUP BY Type
+
+
+SELECT StageName, SUM(Amount)
+FROM Opportunity
+GROUP BY StageName
+
+
+SELECT Industry, AVG(AnnualRevenue)
+FROM Account
+GROUP BY Industry
+
+
+SELECT Industry, Type, COUNT(Id)
+FROM Account
+GROUP BY Industry, Type
+
+
+12. HAVING
+============================================================
+
+SELECT Industry, COUNT(Id)
+FROM Account
+GROUP BY Industry
+HAVING COUNT(Id) > 10
+
+
+SELECT AccountId, SUM(Amount)
+FROM Opportunity
+GROUP BY AccountId
+HAVING SUM(Amount) > 1000000
+
+
+13. CHILD-TO-PARENT RELATIONSHIP
+============================================================
+
+SELECT Id, FirstName, LastName,
+       Account.Name,
+       Account.Industry
+FROM Contact
+
+
+SELECT Id, FirstName, LastName,
+       Account.Name,
+       Account.Owner.Name
+FROM Contact
+
+
+14. PARENT-TO-CHILD RELATIONSHIP
+============================================================
+
+SELECT Id, Name,
+       (SELECT Id, FirstName, LastName, Email
+        FROM Contacts)
+FROM Account
+
+
+SELECT Id, Name,
+       (SELECT Id, FirstName, LastName
+        FROM Contacts
+        WHERE Email != NULL)
+FROM Account
+
+
+SELECT Id, Name,
+       (SELECT Id, FirstName, LastName
+        FROM Contacts
+        ORDER BY LastName ASC)
+FROM Account
+
+
+SELECT Id, Name,
+       (SELECT Id, FirstName, LastName
+        FROM Contacts
+        LIMIT 5)
+FROM Account
+
+
+15. RELATIONSHIP + WHERE
+============================================================
+
+SELECT Id, FirstName, LastName, Account.Name
+FROM Contact
+WHERE Account.Industry = 'Technology'
+
+
+SELECT Id, FirstName, LastName, Owner.Name
+FROM Contact
+WHERE Owner.Name = 'John Smith'
+
+
+16. SEMI-JOIN
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Contact
+)
+
+
+SELECT Id, Name
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Opportunity
+)
+
+
+SELECT Id, Name
+FROM Account
+WHERE Id IN (
+    SELECT AccountId
+    FROM Opportunity
+    WHERE Amount > 100000
+)
+
+
+17. ANTI-JOIN
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE Id NOT IN (
+    SELECT AccountId
+    FROM Contact
+)
+
+
+SELECT Id, Name
+FROM Account
+WHERE Id NOT IN (
+    SELECT AccountId
+    FROM Opportunity
+)
+
+
+SELECT Id, Name
+FROM Account
+WHERE Id NOT IN (
+    SELECT AccountId
+    FROM Opportunity
+    WHERE IsClosed = false
+)
+
+
+18. TYPEOF - END
+============================================================
+
+SELECT Id, Subject,
+       TYPEOF Owner
+           WHEN User THEN Name, Email
+           WHEN Group THEN Name
+       END
+FROM Task
+
+
+SELECT Id, Subject,
+       TYPEOF What
+           WHEN Account THEN Name, Industry
+           WHEN Opportunity THEN Name, Amount
+       END
+FROM Task
+
+
+19. POLYMORPHIC RELATIONSHIPS
+============================================================
+
+SELECT Id, Subject, Owner.Name
+FROM Task
+
+
+SELECT Id, Subject, Who.Name
+FROM Task
+
+
+SELECT Id, Subject, What.Name
+FROM Task
+
+
+20. USING SCOPE
+============================================================
+
+SELECT Id, Name
+FROM Account
+USING SCOPE Mine
+
+
+SELECT Id, FirstName, LastName
+FROM Contact
+USING SCOPE Mine
+                                
+	Scope						| Meaning	Simple 													| example
+	----------------------------|-------------------------------------------------------------------| ----------------------------------------------
+	Mine						| Records owned by you												| Contacts where you are the owner
+	MyGroups					| Records owned by your groups/queues								| Records owned by a queue/group you're part of
+	MyTerritory					| Records belonging to your territory								| Accounts assigned to your territory
+	MyTerritoryAndSubordinates	| Records in your territory + child/subordinate territories			| Your territory + territories underneath it
+	Team						| Records where you are a team member								| Accounts where you're on the Account Team
+	Delegated					| Records delegated to you											| Records another user has delegated to you
+
+
+21. FOR VIEW
+============================================================
+
+SELECT Id, Name
+FROM Account
+FOR VIEW
+
+
+22. FOR REFERENCE
+============================================================
+
+SELECT Id, Name
+FROM Account
+FOR REFERENCE
+
+	Clause		| Meaning
+	----------------|------------------------------
+	No clause		| Normal query
+	FOR VIEW		| Records are being viewed
+	FOR REFERENCE	| Records are being referenced
+
+
+23. FOR UPDATE
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE Name = 'ABC Company'
+FOR UPDATE
+
+
+24. FIELDS()
+============================================================
+
+SELECT FIELDS(ALL)
+FROM Account
+LIMIT 200
+
+
+SELECT FIELDS(STANDARD)
+FROM Account
+
+
+SELECT FIELDS(CUSTOM)
+FROM Account
+
+
+25. CUSTOM OBJECT
+============================================================
+
+SELECT Id, Name, Status__c
+FROM Project__c
+WHERE Status__c = 'Active'
+
+
+26. CUSTOM RELATIONSHIP
+============================================================
+
+SELECT Id, Name, Account__r.Name
+FROM Project__c
+
+
+
+27. BOOLEAN
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE IsActive__c = true
+
+
+28. RECORD TYPE
+============================================================
+
+SELECT Id, Name, DeveloperName
+FROM RecordType
+WHERE SObjectType = 'Account'
+
+
+SELECT Id, Name, RecordType.Name
+FROM Account
+WHERE RecordType.Name = 'Customer'
+
+
+SELECT Id, Name, RecordType.Name, RecordType.DeveloperName
+FROM Account
+WHERE RecordType.DeveloperName = 'Customer'
+
+
+29. OWNER
+============================================================
+
+SELECT Id, Name, Owner.Name, Owner.Email
+FROM Account
+
+
+SELECT Id, Name, Owner.Name
+FROM Opportunity
+WHERE Owner.Name = 'John Smith'
+
+
+30. CREATED / MODIFIED
+============================================================
+
+SELECT Id, Name, CreatedDate, CreatedBy.Name
+FROM Account
+
+
+SELECT Id, Name, LastModifiedDate, LastModifiedBy.Name
+FROM Account
+
+
+SELECT Id, Name, LastModifiedDate
+FROM Account
+ORDER BY LastModifiedDate DESC
+LIMIT 10
+
+
+31. MULTIPLE IDS
+============================================================
+
+SELECT Id, Name
+FROM Account
+WHERE Id IN (
+    '001XXXXXXXXXXXXAAA',
+    '001XXXXXXXXXXXXAAB',
+    '001XXXXXXXXXXXXAAC'
+)
+
+
+32. SHARING / ACCESS
+============================================================
+
+SELECT Id, AccountId, UserOrGroupId, AccessLevel
+FROM AccountShare
+
+
+SELECT RecordId, HasReadAccess, HasEditAccess
+FROM UserRecordAccess
+WHERE RecordId = '001XXXXXXXXXXXXXXX'
+
+
+33. HISTORY
+============================================================
+
+SELECT Id, AccountId, Field,
+       OldValue, NewValue, CreatedDate
+FROM AccountHistory
+
+
+SELECT Id, OpportunityId, Field,
+       OldValue, NewValue, CreatedDate
+FROM OpportunityFieldHistory
+
+
+34. DELETED RECORDS
+============================================================
+
+SELECT Id, Name, IsDeleted
+FROM Account
+ALL ROWS
+
+
+SELECT Id, Name, IsDeleted
+FROM Account
+WHERE IsDeleted = true
+ALL ROWS
+
+
+35. FISCAL DATES
+============================================================
+
+SELECT Id, Name, Amount
+FROM Opportunity
+WHERE CloseDate = THIS_FISCAL_YEAR
+
+
+SELECT Id, Name, Amount
+FROM Opportunity
+WHERE CloseDate = LAST_FISCAL_YEAR
+
+
+SELECT Id, Name, Amount
+FROM Opportunity
+WHERE CloseDate = THIS_FISCAL_QUARTER
+
+
+SELECT Id, Name, Amount
+FROM Opportunity
+WHERE CloseDate = LAST_FISCAL_QUARTER
+
+
+36. COMPLEX GROUP QUERY
+============================================================
+
+SELECT StageName,
+       COUNT(Id),
+       SUM(Amount),
+       AVG(Amount)
+FROM Opportunity
+WHERE IsClosed = false
+GROUP BY StageName
+HAVING SUM(Amount) > 100000
+ORDER BY SUM(Amount) DESC
+
+
+37. COMPLEX RELATIONSHIP QUERY
+============================================================
+
+SELECT Id,
+       FirstName,
+       LastName,
+       Account.Name,
+       Account.Owner.Name,
+       Account.Owner.Email
+FROM Contact
+
+
+38. PARENT + CHILD + FILTER
+============================================================
+
+SELECT Id, Name,
+       (SELECT Id, FirstName, LastName
+        FROM Contacts
+        WHERE Email != NULL)
+FROM Account
+
+
+39. AGGREGATE BY ACCOUNT
+============================================================
+
+SELECT AccountId,
+       COUNT(Id),
+       SUM(Amount),
+       AVG(Amount)
+FROM Opportunity
+GROUP BY AccountId
+
+
+SELECT AccountId, COUNT(Id)
+FROM Opportunity
+GROUP BY AccountId
+HAVING COUNT(Id) > 5
+
+
+40. SOQL IN APEX
+============================================================
+
+List<Account> accounts = [
+    SELECT Id, Name
+    FROM Account
+    WHERE Industry = 'Technology'
+];
+
+
+List<Contact> contacts = [
+    SELECT Id, FirstName, LastName, Account.Name
+    FROM Contact
+];
+
+
+41. AGGREGATE SOQL IN APEX
+============================================================
+
+List<AggregateResult> results = [
+    SELECT Industry, COUNT(Id) total
+    FROM Account
+    GROUP BY Industry
+];
+
+
+42. BIND VARIABLES
+============================================================
+
+String industryName = 'Technology';
+
+List<Account> accounts = [
+    SELECT Id, Name
+    FROM Account
+    WHERE Industry = :industryName
+];
+
+
+List<String> industries =
+    new List<String>{'Technology', 'Finance'};
+
+List<Account> accounts = [
+    SELECT Id, Name
+    FROM Account
+    WHERE Industry IN :industries
+];
+
+
+43. DYNAMIC SOQL
+============================================================
+
+String objectName = 'Account';
+
+String query =
+    'SELECT Id, Name FROM ' + objectName;
+
+List<SObject> records = Database.query(query);
+
+
+44. DATABASE.QUERY
+============================================================
+
+String query =
+    'SELECT Id, Name FROM Account';
+
+List<SObject> accounts = Database.query(query);
+
+
+45. USER MODE
+============================================================
+
+List<Account> accounts = [
+    SELECT Id, Name
+    FROM Account
+    WITH USER_MODE
+];
+
+
+46. SECURITY ENFORCED
+============================================================
+
+SELECT Id, Name
+FROM Account
+WITH SECURITY_ENFORCED
+
+
+47. COMPLETE SOQL QUERY
+============================================================
+
+SELECT AccountId,
+       COUNT(Id) OpportunityCount,
+       SUM(Amount) TotalAmount,
+       AVG(Amount) AverageAmount
+FROM Opportunity
+WHERE IsClosed = false
+AND CloseDate = THIS_YEAR
+GROUP BY AccountId
+HAVING COUNT(Id) > 2
+AND SUM(Amount) > 100000
+ORDER BY SUM(Amount) DESC
+LIMIT 10
+
+
+============================================================
+                    SOQL CLAUSE ORDER
+============================================================
+
+SELECT
+FROM
+USING SCOPE
+WHERE
+WITH
+GROUP BY
+HAVING
+ORDER BY
+LIMIT
+OFFSET
+FOR VIEW / FOR REFERENCE / FOR UPDATE
+
+
+============================================================
+                    SOQL CHEAT SHEET
+============================================================
+
+FILTERING
+---------
+=
+!=
+<
+>
+<=
+>=
+LIKE
+IN
+NOT IN
+NULL
+AND
+OR
+NOT
+
+
+SORTING
+-------
+ORDER BY
+ASC
+DESC
+NULLS FIRST
+NULLS LAST
+
+
+LIMITING
+--------
+LIMIT
+OFFSET
+
+
+DATES
+-----
+TODAY
+YESTERDAY
+TOMORROW
+THIS_WEEK
+LAST_WEEK
+NEXT_WEEK
+THIS_MONTH
+LAST_MONTH
+NEXT_MONTH
+THIS_QUARTER
+LAST_QUARTER
+NEXT_QUARTER
+THIS_YEAR
+LAST_YEAR
+NEXT_YEAR
+THIS_FISCAL_QUARTER
+LAST_FISCAL_QUARTER
+THIS_FISCAL_YEAR
+LAST_FISCAL_YEAR
+LAST_N_DAYS:n
+NEXT_N_DAYS:n
+LAST_N_WEEKS:n
+NEXT_N_WEEKS:n
+LAST_N_MONTHS:n
+NEXT_N_MONTHS:n
+N_DAYS_AGO:n
+
+
+AGGREGATE
+---------
+COUNT()
+COUNT(field)
+COUNT_DISTINCT(field)
+SUM()
+AVG()
+MIN()
+MAX()
+
+
+GROUPING
+--------
+GROUP BY
+HAVING
+
+
+RELATIONSHIPS
+-------------
+Child-to-parent:
+Account.Name
+Account.Owner.Name
+
+Parent-to-child:
+(SELECT Id, Name FROM Contacts)
+
+Semi-join:
+WHERE Id IN (SELECT AccountId FROM Contact)
+
+Anti-join:
+WHERE Id NOT IN (SELECT AccountId FROM Contact)
+
+
+ADVANCED
+--------
+TYPEOF
+FIELDS()
+USING SCOPE
+FOR UPDATE
+FOR VIEW
+FOR REFERENCE
+ALL ROWS
+WITH USER_MODE
+WITH SECURITY_ENFORCED
+
+
+APEX
+----
+[SELECT ...]
+Database.query()
+Bind variables :variable
+Dynamic SOQL
+
+
+============================================================
+                         END
+============================================================
