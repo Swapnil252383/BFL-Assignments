@@ -1,0 +1,70 @@
+public class ProjectTaskHandler {
+
+    public static void HandleRollup(List<Project_Task__c> newTasks){
+        Set<Id> projectIds = new Set<Id>();
+        for(Project_Task__c task : newTasks){
+            if(task.Project__c != null){
+                projectIds.add(task.Project__c);
+            }
+        }
+        if(!projectIds.isEmpty()){
+            RollUp(projectIds);
+        }
+    }
+
+    public static void HandleUpdated(List<Project_Task__c> newTasks, Map<Id, Project_Task__c> oldTaskMap){
+        Set<Id> projectIds = new Set<Id>();
+        for(Project_Task__c task : newTasks){
+            Project_Task__c oldTask = oldTaskMap.get(task.Id);
+
+            if(task.Billable_hours__c != oldTask.Billable_hours__c || 
+               task.non_billable__c != oldTask.non_billable__c || 
+               task.Project__c != oldTask.Project__c){
+                
+                if(task.Project__c != null){
+                    projectIds.add(task.Project__c);
+                }
+                if(oldTask.Project__c != null && oldTask.Project__c != task.Project__c){
+                    projectIds.add(oldTask.Project__c);
+                }
+            }
+        }
+        if(!projectIds.isEmpty()){
+            RollUp(projectIds);
+        }
+    }
+
+    public static void RollUp(Set<Id> projectIds){
+        Map<Id, Project__c> updateMap = new Map<Id, Project__c>();
+        for(Id projectId : projectIds){
+            updateMap.put(projectId, new Project__c(
+                Id = projectId, 
+                total_billable_hours__c = 0, 
+                non_billable_hours__c = 0
+            ));
+        }
+
+        // Step 2: Query the actual sums from remaining tasks
+        List<AggregateResult> taskAggregates = [SELECT Project__c, SUM(Billable_hours__c) totalBillable, SUM(non_billable__c) totalNonBillable
+                                                FROM Project_Task__c
+                                                WHERE Project__c IN :projectIds
+                                                GROUP BY Project__c];
+
+        // Step 3: Overwrite the zeros with calculated sums from the database
+        for(AggregateResult ar : taskAggregates){
+            Id projectId = (Id)ar.get('Project__c');
+            if(updateMap.containsKey(projectId)){
+                Project__c pro = updateMap.get(projectId);
+                
+                // Using Apex's Null Coalescing Operator (??) to safely fall back to 0 if null
+                pro.total_billable_hours__c = (Decimal)ar.get('totalBillable') ?? 0;
+                pro.non_billable_hours__c = (Decimal)ar.get('totalNonBillable') ?? 0;
+            }
+        }
+
+        // Step 4: Fire the DML Update operation
+        if(!updateMap.isEmpty()){
+            update updateMap.values();
+        }
+    }
+}
